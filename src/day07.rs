@@ -10,7 +10,7 @@ pub fn part1(input: String) {
             let mut num_iter = parse_nums::<u64>(line);
             let target = num_iter.next().expect("No target found");
             let numbers = num_iter.collect_vec();
-            for mut mask in 0..1 << numbers.len() {
+            for mut mask in 0..1 << numbers.len() - 1 {
                 let mut value = numbers[0];
                 for n in (&numbers).iter().skip(1) {
                     if mask & 1 == 1 {
