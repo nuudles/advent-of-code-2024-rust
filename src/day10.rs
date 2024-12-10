@@ -1,11 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use itertools::{iproduct, Itertools};
-use pathfinding::prelude::dijkstra;
-
 use crate::{point::Point, selfprint::SelfPrint};
 
-pub fn part1(input: String) {
+/*
+fn old_part1(input: String) {
     let mut map = BTreeMap::new();
     let mut zeros = BTreeSet::new();
     let mut nines = BTreeSet::new();
@@ -43,6 +41,29 @@ pub fn part1(input: String) {
     }
     println!("{}", score);
 }
+ */
+
+fn accessible_endings(
+    point: &Point<i64>,
+    map: &BTreeMap<Point<i64>, u8>,
+) -> Option<BTreeSet<Point<i64>>> {
+    let value = *map.get(point)?;
+    if value == 9 {
+        return Some(BTreeSet::from([*point]));
+    }
+    let mut set = BTreeSet::new();
+    for endings in point
+        .neighbors()
+        .iter()
+        .filter(|n| map.get(*n) == Some(&(value + 1)))
+        .filter_map(|n| accessible_endings(n, map))
+    {
+        for p in endings {
+            set.insert(p);
+        }
+    }
+    Some(set)
+}
 
 fn rating(point: &Point<i64>, map: &BTreeMap<Point<i64>, u8>) -> Option<u64> {
     let value = *map.get(point)?;
@@ -57,7 +78,7 @@ fn rating(point: &Point<i64>, map: &BTreeMap<Point<i64>, u8>) -> Option<u64> {
         .sum();
 }
 
-pub fn part2(input: String) {
+pub fn part1(input: String) {
     let mut map = BTreeMap::new();
     let mut zeros = BTreeSet::new();
     for (y, line) in input.lines().enumerate() {
@@ -72,6 +93,13 @@ pub fn part2(input: String) {
             }
         }
     }
+
+    zeros
+        .iter()
+        .flat_map(|z| accessible_endings(z, &map))
+        .map(|e| e.len())
+        .sum::<usize>()
+        .print();
 
     zeros
         .iter()
